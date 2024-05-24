@@ -25,8 +25,10 @@ export interface IOrderPay {
 	payment: string;
 }
 
+export type IOrderForm = IOrderContact & IOrderPay;
+
 // интерфейс для данных о заказе
- export interface IOrder extends IOrderContact, IOrderPay {
+ export interface IOrder extends IOrderForm{
     items: string[];
     total: number;
  }
@@ -47,7 +49,7 @@ export interface IFarmtdOrder {
     
 export type IFormErrors = Partial<Record<keyof IOrder, string>>;
 
-// нитерфейсглавной страницы 
+// итерфейс главной страницы 
 export interface IPage {
     counter: number;
     catalog: HTMLElement[];
@@ -65,10 +67,7 @@ export interface IContent {
 	preview: string | null;
 	order: IOrder | null;
 	loading: boolean;
-    
-    setCatalog(items:IProduct[]):void;
-    addBasket(product:IProduct):void;
-    removeBasket(product:IProduct):void;
+    formErrors: IFormErrors;
 }
 
 export type ChangeEvent = Pick <IContent, 'catalog'>
