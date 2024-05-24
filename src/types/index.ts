@@ -41,8 +41,9 @@ export interface IorderResult {
 }
 
 //интерфейс формы успешного заказа
-export interface IFarmtdOrder {
+export interface ISuccessOrder {
     description: number;
+    total: string;
 }
 //валидация полей заказа
  export type IorderValidate = IOrderContact & IOrderPay

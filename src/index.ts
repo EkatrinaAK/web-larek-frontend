@@ -11,7 +11,7 @@ import { AppContent } from './components/AppState';
 
 const api = new CardAPI (CDN_URL, API_URL);// управление API
 const event = new EventEmitter();//управление событиями
-const appState = new AppContent({},event);
+const appState = new AppContent({},event);//модель данных
 
 // запрс карточек
 async function init () {
