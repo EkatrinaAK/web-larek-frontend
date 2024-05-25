@@ -2,9 +2,7 @@ import { Component } from '../base/component';
 import { ensureElement } from '../../utils/utils';
 import { ISuccessOrder } from '../../types';
 
-
-
-interface ISuccessActions {
+interface ISuccessEvent {
 	onClick: () => void;
 }
 
@@ -13,7 +11,7 @@ export class Success extends Component<ISuccessOrder> {
 	protected _description: HTMLElement;
 	protected _title: HTMLElement;
 
-	constructor(container: HTMLElement, actions: ISuccessActions) {
+	constructor(container: HTMLElement, actions: ISuccessEvent) {
 		super(container);
 		this._close = ensureElement<HTMLElement>(
 			'.order-success__close',

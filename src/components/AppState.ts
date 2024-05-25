@@ -81,7 +81,7 @@ export class AppContent extends Model<IContent> {
 		const errors: typeof this.formErrors = {};
     	const deliveryRegex = /^[а-яА-ЯёЁa-zA-Z0-9\s\/.,-]{7,}$/;
     	if (!this.order.address) errors.address = 'Необходимо указать адрес';
-    	else if (!deliveryRegex.test(this.order.address)) errors.address = 'Укажите настоящий адрес';
+    	else if (!deliveryRegex.test(this.order.address)) errors.address = 'Укажите адрес';
     	else if(!this.order.payment) errors.payment='Выберите способ оплаты';
 		this.formErrors = errors;
     	this.events.emit('formErrors:change', this.formErrors);
@@ -94,9 +94,9 @@ export class AppContent extends Model<IContent> {
 		const phoneRegex = /^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{10}$/;
 		if (this.order.phone.startsWith('8')) this.order.phone = '+7' + this.order.phone.slice(1);
 		if (!this.order.email) errors.email = 'Необходимо указать email';
-		else if (!emailRegex.test(this.order.email)) errors.email = 'Некорректный адрес электронной почты';
-		if (!this.order.phone) errors.phone = 'Необходимо указать телефон';
-		else if (!phoneRegex.test(this.order.phone)) errors.phone ='Некорректный формат номера телефона';
+		else if (!emailRegex.test(this.order.email)) errors.email = 'Укажите адрес электронной почты';
+		if (!this.order.phone) errors.phone = 'Укажите телефон';
+		else if (!phoneRegex.test(this.order.phone)) errors.phone ='Неверный формат номера телефона';
 		this.formErrors = errors;
 		this.events.emit('formErrors:change', this.formErrors);
 		return Object.keys(errors).length === 0;

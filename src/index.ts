@@ -2,10 +2,10 @@ import './scss/styles.scss';
 
 import { API_URL, CDN_URL } from "./utils/constants";
 import { CardAPI } from './components/CardAPI'
-import { Page } from './components/Page';
+//import { Page } from './components/Page';
 import { EventEmitter } from './components/base/events';
-import { Modal } from './components/common/Modal';
-import { ensureElement, cloneTemplate } from './utils/utils';
+//import { Modal } from './components/common/Modal';
+//import { ensureElement, cloneTemplate } from './utils/utils';
 import { AppContent } from './components/AppState';
 
 

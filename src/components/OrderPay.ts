@@ -2,7 +2,7 @@ import { IOrderPay } from '../types';
 import { IEvents } from './base/events';
 import { Form } from './common/Form';
 
-export class OrderForm extends Form<IOrderPay> {
+export class OrderPay extends Form<IOrderPay> {
 	protected _card: HTMLButtonElement;
 	protected _cash: HTMLButtonElement;
 	protected _address: HTMLInputElement;

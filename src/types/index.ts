@@ -33,20 +33,11 @@ export type IOrderForm = IOrderContact & IOrderPay;
     total: number;
  }
 
- //интерфейс покупки
-export interface IorderResult {
-    id: string[];
-    total: number;
-    error?: string;    
-}
-
 //интерфейс формы успешного заказа
 export interface ISuccessOrder {
     description: number;
     total: string;
 }
-//валидация полей заказа
- export type IorderValidate = IOrderContact & IOrderPay
     
 export type IFormErrors = Partial<Record<keyof IOrder, string>>;
 
@@ -71,4 +62,4 @@ export interface IContent {
     formErrors: IFormErrors;
 }
 
-export type ChangeEvent = Pick <IContent, 'catalog'>
+//export type ChangeEvent = Pick <IContent, 'catalog'>
