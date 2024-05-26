@@ -1,18 +1,14 @@
 // интерфейс для карточки
 export interface IProduct{
     id: string;
-    description?: string;
-    image?: string;
-    title?: string;
-    category?: string;
+    description: string;
+    image: string;
+    title: string;
+    category: string;
     price: number | null; 
     select: boolean;
 }
-
-//интерфейс товара в корзине
-export interface IProductBascket {
-    index: number;
-}
+export type IProductOrder = Pick <IProduct, 'select'>
 
 // интерфейс контактные данные 
 export interface IOrderContact {
@@ -24,34 +20,41 @@ export interface IOrderPay {
     address: string;
 	payment: string;
 }
-
 export type IOrderForm = IOrderContact & IOrderPay;
 
 // интерфейс для данных о заказе
  export interface IOrder extends IOrderForm{
+    items: IProduct[];
+ }
+ export interface IOrderApi extends IOrderForm {
     items: string[];
     total: number;
  }
-
-//интерфейс формы успешного заказа
-export interface ISuccessOrder {
-    description: number;
-    total: string;
-}
     
 export type IFormErrors = Partial<Record<keyof IOrder, string>>;
 
-// итерфейс главной страницы 
+//интерфейс  главной страницы
 export interface IPage {
-    counter: number;
-    catalog: HTMLElement[];
-    locked: boolean;
+	counter: number;
+	catalog: HTMLElement[];
+	locked: boolean;
 }
-// интерфейс корзины
-export interface IBasket {
-	list: HTMLElement[];
+//интерфейс корзины
+export interface IBasketPage {
+	items: HTMLElement[];
+	total: number;
+	selected: string[];
+}
+ export interface IBasket {
+	title: string;
+	id: number;
+	price: string | number;
+}
+
+export interface ISuccessForm {
 	total: number;
 }
+
 //интерфейс приложения
 export interface IContent {
     catalog: IProduct[];
@@ -59,7 +62,6 @@ export interface IContent {
 	preview: string | null;
 	order: IOrder | null;
 	loading: boolean;
-    formErrors: IFormErrors;
 }
 
-//export type ChangeEvent = Pick <IContent, 'catalog'>
+export type ChangeEvent = Pick <IContent, 'catalog'>

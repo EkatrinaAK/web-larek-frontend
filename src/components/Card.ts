@@ -1,36 +1,28 @@
 import { Component } from './base/component';
 import { ensureElement } from '../utils/utils';
-import { IProductBascket } from '../types';
+
 
 interface ICardEvent {
 	onClick: (event: MouseEvent) => void;
 }
 
-const CardCategory = {
-    ['софт-скил']: 'soft',
-	['другое']: 'other',
-	['кнопка']: 'button',
-	['хард-скил']: 'hard',
-	['дополнительное']: 'additional',
-}
-
-export interface ICard <T>{
+export interface ICard {
     description?: string | string[];
     image: string;
     title: string;
     category: string;
     price: number | null; 
-    status: T;
-    index: number;	
+    button?: boolean
 }
 
-export class Card <T> extends Component<ICard<T>> {
+export class Card  extends Component<ICard> {
+    protected _id: HTMLElement;
 	protected _title: HTMLElement;
-	protected _image: HTMLImageElement;
-	protected _description: HTMLElement;
-	protected _button: HTMLButtonElement;
-	protected _categoty: HTMLElement;
-	protected _price: HTMLElement;
+	protected _image?: HTMLImageElement;
+	protected _description?: HTMLElement;
+	protected _button?: HTMLButtonElement;
+	protected _category?: HTMLElement;
+	protected _price?: HTMLElement;
 
 
 constructor(
@@ -39,13 +31,11 @@ constructor(
     actions?: ICardEvent
 ) {
     super(container);
-
     this._title = ensureElement<HTMLElement>(`.${blockName}__title`, container);
+    this._image = ensureElement<HTMLImageElement>(`.${blockName}__image`,container);
     this._button = container.querySelector(`.${blockName}__button`);
     this._description = container.querySelector(`.${blockName}__text`);
     this._price = container.querySelector(`.${blockName}__price`);
-    this._categoty = container.querySelector(`.${blockName}__category`);
-
 
     if (actions?.onClick) {
         if (this._button) {
@@ -72,11 +62,16 @@ get title(): string {
 }
 
 //price
-set price(value: string | null) {
-    this.setText(this._price, value ?? '');
+set price(value: string) {
+    if (value == null) {
+        this.setText(this._price, 'Бесценно');
+    } else {
+        this.setText(this._price, value + ' синапсов');
+    }
 }
+
 get price(): string {
-    return this._price.textContent || null;
+    return this._price.textContent || '';
 }
 
 //img
@@ -85,74 +80,70 @@ set image(value: string) {
 }
 
 //desription
-set description(value: string | string[]) {
-    if (Array.isArray(value)) {
-        this._description.replaceWith(
-            ...value.map((str) => {
-                const descTemplate = this._description.cloneNode() as HTMLElement;
-                this.setText(descTemplate, str);
-                return descTemplate;
-            })
-        );
-    } else {
-        this.setText(this._description, value);
-    }
+set description(value: string) {
+    this.setText(this._description, value);
 }
+
 //category
-set category(value: keyof typeof CardCategory) {
-    if (this._categoty) {
-        this.setText(this._categoty, value);
-        const categoryStyle = `card__category_${CardCategory[value]}`;
-        this._categoty.classList.add(categoryStyle);
+set category(value: string) {
+    const categoryElement = this.container.querySelector(
+        `.${this.blockName}__category`
+    );
+
+    categoryElement.textContent = value;
+
+    let categoryValue = '';
+
+    switch (value) {
+        case 'софт-скил':
+            categoryValue = 'soft';
+            break;
+        case 'другое':
+            categoryValue = 'other';
+            break;
+        case 'кнопка':
+            categoryValue = 'button';
+            break;
+        case 'хард-скил':
+            categoryValue = 'hard';
+            break;
+        case 'дополнительное':
+            categoryValue = 'additional';
+            break;
+        default:
+            categoryValue = '';
+            break;
     }
+    categoryElement.classList.add(
+        `${this.blockName}__category_${categoryValue}`
+    );
 }
-get category(): keyof typeof CardCategory {
-    return this._categoty.textContent as keyof typeof CardCategory;
-}
-}
-//корзина 
-export class BasketCard extends Card<IProductBascket> {
-    protected _index: HTMLElement;
 
-    constructor(container: HTMLElement, actions?: ICardEvent) {
-		super('card', container, actions);
-		this._index = ensureElement<HTMLElement>(`.basket__item-index`, container);
-		this._button = ensureElement<HTMLButtonElement>(
-			`.basket__item-delete`,
-			container
-		);
-	}
-
-	set index(value: number) {
-		this.setText(this._index, value.toString());
-	}
+get category(): string {
+    return this._category.textContent || '';
 }
-//
-export type ItemStatus = {
-	status: boolean;
-};
+}
 
-export class CatalogItem extends Card<ItemStatus> {
+export class Item extends Card {
+	protected _status: HTMLElement;
+
 	constructor(container: HTMLElement, actions?: ICardEvent) {
 		super('card', container, actions);
-		this._image = ensureElement<HTMLImageElement>(`.card__image`, container);
 	}
 
-	set status({ status }: ItemStatus) {
-		if (this._button) {
-			if (this.price === 'Бесценно') {
-				this.setText(this._button, 'Недоступно');
-				this._button.disabled = true;
-			} else {
-				this.setText(this._button, status ? 'Уже в корзине' : 'В корзину');
-				this._button.disabled = status;
-			}
+	set button(value: boolean) {
+		const price = this._price.innerText;
+
+		if (price === 'Бесценно') {
+			this._button.disabled = true;
+		} else {
+			this._button.disabled = false;
 		}
+
+		this.setText(this._button, value ? 'Удалить' : 'В корзину');
+	}
+
+	set description(value: string) {
+		this.setText(this._description, value);
 	}
 }
-
-
-
-
-
-

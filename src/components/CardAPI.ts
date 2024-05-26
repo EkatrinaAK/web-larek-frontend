@@ -1,10 +1,10 @@
 import { Api, ApiListResponse } from './base/api';
-import { IProduct, IOrder} from '../types';
+import { IProduct, IOrderApi} from '../types';
 
 export interface ICardAPI {
     getCardList: () => Promise <ApiListResponse<IProduct>>;
     getCardItem: (id:string) => Promise<IProduct>;
-    getOrderCard: (order: IOrder) => Promise <IOrder>;
+    getOrderCard: (order: IOrderApi) => Promise <IOrderApi>;
 }
 
 export class CardAPI extends Api implements ICardAPI {
@@ -25,8 +25,8 @@ export class CardAPI extends Api implements ICardAPI {
     getCardList(): Promise <ApiListResponse<IProduct>> {
         return this.get('/product') as  Promise <ApiListResponse<IProduct>> ;
     }
-    getOrderCard(order:IOrder): Promise <IOrder> {
-        return this.post('/order',order).then((data:IOrder)=>data);
+    getOrderCard(order:IOrderApi): Promise <IOrderApi> {
+        return this.post('/order',order).then((data:IOrderApi)=>data);
     }
 
 }
