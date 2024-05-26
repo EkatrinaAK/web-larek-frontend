@@ -1,120 +1,147 @@
 import { Model } from './base/Model';
-import { IProduct, IFormErrors, IOrder, IContent, IOrderForm } from '../types/index';
+import { IProduct, IProductOrder, IFormErrors, IOrder, IContent, IOrderForm, ChangeEvent } from '../types/index';
+import { IEvents } from './base/events';
+
+export class ProductItem extends Model<IProduct> {
+	id: string;
+    description: string;
+    image: string;
+    title: string;
+    category: string;
+    price: number | null; 
+    select: boolean;
+	status: IProductOrder;
+	about: string;
+}
 
 export class AppContent extends Model<IContent> {
 	basket: IProduct[]= [];
 	catalog: IProduct[] = [];
-	order = {
+	order: IOrder = {
 		email: '',
 		phone: '',
 		payment: '',
 		address: '',
 		items: [],
-	} as IOrder;
+	} 
 	preview: string | null;
 	formErrors: IFormErrors = {};
 
+	constructor (data: Partial<IContent>, events: IEvents) {
+		super (data, events);
+		this.events = events;
+	}
+
+
 	// каталог
 	setCatalog(items: IProduct[]) {
-		this.catalog = items;
-		this.emitChanges('items:changed',  this.catalog);
+		this.catalog = items.map((item) => new ProductItem (item, this.events));
+		this.emitChanges('catalog:changed', { catalog: this.catalog });
     }
 	//карточки
-	setPreview(item: IProduct) {
+	setPreview(item: ProductItem): void {
         this.preview = item.id;
-        this.emitChanges('preview:changed', item);
+        this.emitChanges('card:open', item);
     }
 	//добаить
-	addCardBasket(item: IProduct) {
-		this.order.items.push(item.id)
+	addBasket(item: ProductItem): void {
+		this.catalog.map((e)=> {
+			if(item.id === e.id){
+				e.select=true;
+			}
+		});
+		this.emitChanges('card:open', item);
+		this.emitChanges('lot:changed', item);
 	}
-	//карточка в корзине
-	setCardToBasket(item: IProduct) {
-		this.basket.push(item)
+	// удалить 
+	deleteBasket(item: ProductItem): void {
+		this.catalog.map((e) => {
+			if (item.id === e.id) {
+				e.select = false;
+			}
+		});
+
+		this.emitChanges('card:open', item);
+		this.emitChanges('lot:changed', item);
 	}
-	//список  в корзине
-	get basketList(): IProduct[] {
-		return this.basket
-	}
-	//информация о составе в корзине
-	get statusBasket(): boolean {
-		return this.basket.length === 0
-	}
-	//сумма 
-	set total(value: number) {
-		this.order.total = value;
-	  }
-	  //сумма заказа 
-	  getTotal () {
-		return this.basket.reduce((acc, item) => acc + item.price, 0);
-	}
-	// удальть из корзины
-	deleteCardToBasket(item: IProduct) {
-		const index = this.basket.indexOf(item);
-		if (index >= 0) {
-		  this.basket.splice( index, 1 );
+//очистить
+clearBasket(): void {
+	this.catalog.forEach((e) => {
+		e.select = false;
+	});
+	this.emitChanges('lot:changed');
+}
+// удалить из корзины
+deleteFromBasket(item: ProductItem): void {
+	this.catalog.map((e) => {
+		if (item.id === e.id) {
+			e.select = false;
 		}
-	}
-	//очистить козину
-	clearBasket() {
-		this.basket = []
-		this.order.items = []
-	}
-	//поле доставки 
-	setOrderField(field: keyof IOrderForm, value: string) {
-		this.order[field] = value;
-		if (this.validateOrder()) {
-			this.events.emit('order:ready', this.order);
-		} 
-	}
-	//поле контакты
-	setContactsField(field: keyof IOrderForm, value: string) {
-		this.order[field] = value;
-	
-		if (this.validateContacts()) {
-			this.events.emit('order:ready', this.order);
-		} 
-	}
+	});
+	this.emitChanges('lot:changed', item);
+}
 
-	//валидация данных
-	validateOrder() {
-		const errors: typeof this.formErrors = {};
-    	const deliveryRegex = /^[а-яА-ЯёЁa-zA-Z0-9\s\/.,-]{7,}$/;
-    	if (!this.order.address) errors.address = 'Необходимо указать адрес';
-    	else if (!deliveryRegex.test(this.order.address)) errors.address = 'Укажите адрес';
-    	else if(!this.order.payment) errors.payment='Выберите способ оплаты';
-		this.formErrors = errors;
-    	this.events.emit('formErrors:change', this.formErrors);
-    	return Object.keys(errors).length === 0;
-  }
-	// валидация контактов
-	validateContacts() {
-		const errors: typeof this.formErrors = {};
-		const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
-		const phoneRegex = /^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{10}$/;
-		if (this.order.phone.startsWith('8')) this.order.phone = '+7' + this.order.phone.slice(1);
-		if (!this.order.email) errors.email = 'Необходимо указать email';
-		else if (!emailRegex.test(this.order.email)) errors.email = 'Укажите адрес электронной почты';
-		if (!this.order.phone) errors.phone = 'Укажите телефон';
-		else if (!phoneRegex.test(this.order.phone)) errors.phone ='Неверный формат номера телефона';
-		this.formErrors = errors;
-		this.events.emit('formErrors:change', this.formErrors);
-		return Object.keys(errors).length === 0;
-	}
-
-	//очистить
-	clearOrder() {
-		this.order = {
-			email: '',
-			phone: '',
-			payment: 'cash',
-			address: '',
-			items: [],
-			total: 0,
-		};
+handleBasket(item: ProductItem): void {
+	if (item.select) {
+		this.deleteBasket(item);
+	} else {
+		this.addBasket(item);
 	}
 }
 
+getBasketProduct = (): IProduct[] => this.catalog.filter((item) => item.select);
+
+getTotal() {
+	return this.catalog
+		.filter((item) => item.select)
+		.reduce((acc, e) => acc + e.price, 0);
+}
+
+setOrderField(field: keyof IOrderForm, value: string) {
+	this.order[field] = value;
+
+	if (this.validateOrderPay()) {
+		this.events.emit('order:ready', this.order);
+	}
+
+	if (this.validateOrderContact()) {
+		this.events.emit('order:ready', this.order);
+	}
+}
+//валидация
+validateOrderPay() {
+	const errors: typeof this.formErrors = {};
+
+	if (!this.order.address) {
+		errors.address = 'Укажите адрес';
+	}
+	if (!this.order.payment) {
+		errors.payment = 'Укажите способ оплаты';
+	}
+
+	this.formErrors = errors;
+	this.events.emit('formErrors:change', this.formErrors);
+
+	return Object.keys(errors).length === 0;
+}
+
+validateOrderContact() {
+	const errors: typeof this.formErrors = {};
+
+	if (!this.order.email) {
+		errors.email = 'Укажите email';
+	}
+
+	if (!this.order.phone) {
+		errors.phone = 'Укажите телефон';
+	}
+
+	this.formErrors = errors;
+	this.events.emit('formErrorsContact:change', this.formErrors);
+
+	return Object.keys(errors).length === 0;
+}
+}
 
 
-
+	

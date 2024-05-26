@@ -1,12 +1,12 @@
 import { Component } from '../base/component';
 import { ensureElement } from '../../utils/utils';
-import { ISuccessOrder } from '../../types';
+import { ISuccessForm } from '../../types';
 
 interface ISuccessEvent {
 	onClick: () => void;
 }
 
-export class Success extends Component<ISuccessOrder> {
+export class Success extends Component<ISuccessForm> {
 	protected _close: HTMLElement;
 	protected _description: HTMLElement;
 	protected _title: HTMLElement;

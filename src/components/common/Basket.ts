@@ -1,86 +1,89 @@
 import { Component } from '../base/component';
-import { IEvents } from '../base/events';
-import { IBasket,IProductBascket } from '../../types';
+import { EventEmitter} from '../base/events';
+import { createElement, ensureElement } from '../../utils/utils';
+import { IBasketPage, IBasket} from '../../types';
 
-
-export class Basket extends Component<IBasket> {
+export class Basket extends Component<IBasketPage> {
 	protected _list: HTMLElement;
 	protected _total: HTMLElement;
 	protected _button: HTMLButtonElement;
 
-	constructor(protected blockName: string,
-				container: HTMLElement,
-				protected events: IEvents ) {
+	constructor(container: HTMLElement, protected events: EventEmitter ) {
 		
 		super(container);
 
-		this._button = container.querySelector(`.${blockName}__button`);
-		this._total = container.querySelector(`.${blockName}__price`);
-		this._list = container.querySelector(`.${blockName}__list`);
+		this._list = ensureElement<HTMLElement>('.basket__list', this.container);
+		this._total = ensureElement<HTMLElement>('.basket__price', this.container);
+		this._button = this.container.querySelector('.basket__button');
 		
-		
-	if (this._button) {
-		this._button.addEventListener('click', () =>
-		this.events.emit('basket:order')
+		if (this._button) {
+			if (!this.items?.length) {
+				this._button.disabled = true;
+			}
+			this._button.addEventListener('click', () => {
+				events.emit('order:open');
+			});
+		}
+
+		this.items = [];
+	}
+
+	set items(items: HTMLElement[]) {
+		if (items.length) {
+			this._list.replaceChildren(...items);
+			this._button.disabled = false;
+		} else {
+			this._list.replaceChildren(
+				createElement<HTMLParagraphElement>('p', {
+					textContent: 'Корзина пустая',
+				})
 			);
+			this._button.disabled = true;
+		}
+	}
+
+	set selected(items: string[]) {
+		if (items.length) {
+			this.setDisabled(this._button, false);
+		} else {
+			this.setDisabled(this._button, true);
 		}
 	}
 
 	set total(price: number) {
-		this.setText(this._total, price + ' синапсов');
-	}
-
-	set list(items: HTMLElement[]) {
-		this._list.replaceChildren(...items);
-		this.toggleButton(!items.length);
-	}
-
-	toggleButton(isDisabled: boolean) {
-		this.setDisabled(this._button, isDisabled)
+		this.setText(this._total, `${price} синапсов`);
 	}
 }
 
-export interface IBasketActions {
+interface IClick {
 	onClick: (event: MouseEvent) => void;
 }
-
-export class ProductItemBasket extends Component<IProductBascket> {
-	protected _index: HTMLElement;
+export class BasketItem extends Component<IBasket> {
 	protected _title: HTMLElement;
+	protected _id: HTMLElement;
 	protected _price: HTMLElement;
 	protected _button: HTMLButtonElement;
+	protected _prices: number[] = [];
 
-	constructor(
-		protected blockName: string,
-		container: HTMLElement,
-		actions?: IBasketActions
-	) {
-
+	constructor(container: HTMLElement, actions?: IClick) {
 		super(container);
-		this._title = container.querySelector(`.${blockName}__title`);
-		this._index = container.querySelector(`.basket__item-index`);
-		this._price = container.querySelector(`.${blockName}__price`);
-		this._button = container.querySelector(`.${blockName}__button`);
 
-		if (this._button) {
-			this._button.addEventListener('click', (evt) => {
-				this.container.remove();
-				actions?.onClick(evt);
-			});
-		}
+		this._button = ensureElement<HTMLButtonElement>('.card__button', container);
+		this._title = ensureElement<HTMLElement>('.card__title', container);
+		this._id = ensureElement<HTMLElement>('.basket__item-index', container);
+		this._price = ensureElement<HTMLElement>('.card__price', container);
+		this._button.addEventListener('click', actions.onClick);
 	}
-
 	set title(value: string) {
 		this.setText(this._title, value);
 	}
 
-	set index(value: number) {
-		this.setText(this._index, value);
+	set id(value: number) {
+		this.setText(this._id, value);
 	}
 
-	set price(value: number) {
-		this.setText(this._price, value + ' синапсов');
+	set price(value: string) {
+		this.setText(this._price, `${value} синапсов`);
+		this._prices.push(parseFloat(value));
 	}
 }
-		
-	
