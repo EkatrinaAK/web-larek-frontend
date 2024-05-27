@@ -21,7 +21,7 @@ export class Card  extends Component<ICard> {
 	protected _image: HTMLImageElement;
 	protected _description?: HTMLElement;
 	protected _button?: HTMLButtonElement;
-	protected _category?: HTMLElement;
+	protected _category: HTMLElement;
 	protected _price?: HTMLElement;
 
 
@@ -86,10 +86,11 @@ set description(value: string) {
 
 //category
 set category(value: string) {
+
     const categoryElement = this.container.querySelector(
         `.${this.blockName}__category`
     );
-
+    categoryElement.className = `${this.blockName}__category`;
     categoryElement.textContent = value;
 
     let categoryValue = '';
@@ -114,6 +115,7 @@ set category(value: string) {
             categoryValue = '';
             break;
     }
+    
     categoryElement.classList.add(
         `${this.blockName}__category_${categoryValue}`
     );

@@ -85,6 +85,7 @@ event.on('card:open', (item: ProductItem) => {
 	});
 	modal.render({
 		content: card.render({
+			category: item.category,
 			title: item.title,
 			image: item.image,
 			description: item.description,
