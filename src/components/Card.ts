@@ -18,7 +18,7 @@ export interface ICard {
 export class Card  extends Component<ICard> {
     protected _id: HTMLElement;
 	protected _title: HTMLElement;
-	protected _image?: HTMLImageElement;
+	protected _image: HTMLImageElement;
 	protected _description?: HTMLElement;
 	protected _button?: HTMLButtonElement;
 	protected _category?: HTMLElement;

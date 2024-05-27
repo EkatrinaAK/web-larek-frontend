@@ -94,7 +94,8 @@ export interface ISuccessForm {
 	total: number;
 }
 ```
-Итерфейс главной страницы 
+Интерфейс главной страницы 
+```
 export interface IPage {
     counter: number;
     catalog: HTMLElement[];
@@ -102,6 +103,7 @@ export interface IPage {
 }
 ```
 Интерфейс приложения
+```
 export interface IContent {
     catalog: IProduct[];
 	basket: IProduct[];

@@ -13,6 +13,7 @@ export class CardAPI extends Api implements ICardAPI {
     constructor ( cdn: string, baseUrl: string, options?: RequestInit) {
         super(baseUrl, options);
         this.cdn = cdn;
+        console.log(cdn);
     }
     getCardItem(id:string): Promise <IProduct> {
         return this.get(`/product/${id}`).then ( 
@@ -22,9 +23,18 @@ export class CardAPI extends Api implements ICardAPI {
             })
         )
      }
-    getCardList(): Promise <ApiListResponse<IProduct>> {
-        return this.get('/product') as  Promise <ApiListResponse<IProduct>> ;
+     
+    async getCardList(): Promise <ApiListResponse<IProduct>> {
+        const result = (await this.get('/product')) as ApiListResponse<IProduct>;
+        return { 
+            total: result.total,
+            items: result.items.map ((item:IProduct) => ({
+                ...item,
+                image: this.cdn + item.image,
+            }))
+        };
     }
+
     getOrderCard(order:IOrderApi): Promise <IOrderApi> {
         return this.post('/order',order).then((data:IOrderApi)=>data);
     }
